@@ -3,7 +3,7 @@
 // ============================================
 const CONFIG = {
   // Your Google Apps Script Deployment URL
-  API_URL: 'https://script.google.com/macros/s/AKfycbxxzKztQNA1g-_ryRM0qwunuMe9VzcpfIvXntcuCJBbpjtrMewyqeyQLpkyPzF_P5Qm/exec',
+  API_URL: 'https://script.google.com/macros/s/AKfycbzb_kvG47Pi2Ip261ls6Ub5nbYmDGQlfcg5fTVJ4v3YG9gbb3ITS5MEDvmhwRGWiXKq/exec',
   
   // App Info
   APP_NAME: 'Daily Plant Production Report',
