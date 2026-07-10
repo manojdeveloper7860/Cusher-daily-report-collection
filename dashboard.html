@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Plant Production Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><i class="fas fa-industry"></i></div>
+      <h2>Plant Report</h2>
+      <p>Production System</p>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-section="dashboard">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+      </a>
+      <a href="#" class="nav-item" data-section="entry">
+        <i class="fas fa-plus-circle"></i> Daily Entry
+      </a>
+      <a href="#" class="nav-item" data-section="reports">
+        <i class="fas fa-file-pdf"></i> Reports & PDF
+      </a>
+      <a href="#" class="nav-item" data-section="history">
+        <i class="fas fa-history"></i> History
+      </a>
+      <a href="#" class="nav-item admin-only" data-section="users">
+        <i class="fas fa-users-cog"></i> User Management
+      </a>
+      <a href="#" class="nav-item admin-only" data-section="sites">
+        <i class="fas fa-map-marker-alt"></i> Site Management
+      </a>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">A</div>
+        <div>
+          <div class="user-name" id="userName">Admin</div>
+          <div class="user-role" id="userRole">admin</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </div>
+  
+  <!-- MAIN CONTENT -->
+  <div class="main-content" id="mainContent">
+    
+    <div class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="topbar-title">
+        <h1 id="pageTitle">Dashboard</h1>
+        <p id="pageSubtitle">Daily Production Overview</p>
+      </div>
+      <div class="topbar-actions">
+        <div class="date-display">
+          <i class="fas fa-calendar-day"></i>
+          <span id="currentDate"></span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- DASHBOARD SECTION -->
+    <div class="section active" id="section-dashboard">
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>Date</label>
+          <input type="date" id="dashDate" onchange="loadDashboard()">
+        </div>
+        <div class="filter-group">
+          <label>Site</label>
+          <select id="dashSite" onchange="loadDashboard()">
+            <option value="All">All Sites</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="loadDashboard()">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
+      
+      <div class="cards-grid">
+        <div class="card card-blue">
+          <div class="card-icon"><i class="fas fa-industry"></i></div>
+          <div class="card-info">
+            <div class="card-value" id="totalPlants">0</div>
+            <div class="card-label">Total Plants</div>
+          </div>
+        </div>
+        <div class="card card-green">
+          <div class="card-icon"><i class="fas fa-check-circle"></i></div>
+          <div class="card-info">
+            <div class="card-value" id="workingPlants">0</div>
+            <div class="card-label">Working</div>
+          </div>
+        </div>
+        <div class="card card-red">
+          <div class="card-icon"><i class="fas fa-times-circle"></i></div>
+          <div class="card-info">
+            <div class="card-value" id="idlePlants">0</div>
+            <div class="card-label">Idle / BD</div>
+          </div>
+        </div>
+        <div class="card card-purple">
+          <div class="card-icon"><i class="fas fa-chart-bar"></i></div>
+          <div class="card-info">
+            <div class="card-value" id="todayProd">0</div>
+            <div class="card-label">Today's Production</div>
+          </div>
+        </div>
+        <div class="card card-orange">
+          <div class="card-icon"><i class="fas fa-calendar-check"></i></div>
+          <div class="card-info">
+            <div class="card-value" id="monthProd">0</div>
+            <div class="card-label">This Month</div>
+          </div>
+        </div>
+        <div class="card card-teal">
+          <div class="card-icon"><i class="fas fa-flag-checkered"></i></div>
+          <div class="card-info">
+            <div class="card-value" id="balanceProd">0</div>
+            <div class="card-label">Balance Qty</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-layer-group"></i> Category Wise Summary</h3>
+        </div>
+        <div class="panel-body">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Total Plants</th>
+                  <th>Working</th>
+                  <th>Idle</th>
+                  <th>Today Production</th>
+                  <th>Month Production</th>
+                </tr>
+              </thead>
+              <tbody id="categorySummaryBody">
+                <tr><td colspan="6" class="no-data">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-table"></i> Detailed Production Data</h3>
+        </div>
+        <div class="panel-body">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Sr.No</th>
+                  <th>Category</th>
+                  <th>Plant Name</th>
+                  <th>Site Name</th>
+                  <th>Capacity</th>
+                  <th>Prev Day</th>
+                  <th>Today</th>
+                  <th>This Month</th>
+                  <th>Up to Date</th>
+                  <th>Project Req.</th>
+                  <th>Balance</th>
+                  <th>Status/Reason</th>
+                </tr>
+              </thead>
+              <tbody id="detailTableBody">
+                <tr><td colspan="12" class="no-data">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- DAILY ENTRY SECTION -->
+    <div class="section" id="section-entry">
+      <div class="panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-edit"></i> Daily Production Entry</h3>
+        </div>
+        <div class="panel-body">
+          <div class="entry-controls">
+            <div class="form-row">
+              <div class="form-col">
+                <label>Entry Date <span class="required">*</span></label>
+                <input type="date" id="entryDate" required>
+              </div>
+              <div class="form-col">
+                <label>Plant Category <span class="required">*</span></label>
+                <select id="entryCategory">
+                  <option value="">-- Select Category --</option>
+                  <option value="CrusherPlant09">CRUSHER PLANT 09</option>
+                  <option value="RMCPlants">RMC PLANTS</option>
+                  <option value="WMMPlant02">WMM PLANT 02</option>
+                  <option value="HotMixPlant01">HOT MIX PLANT 01</option>
+                  <option value="SandWashPlant05">SAND WASH PLANT 05</option>
+                </select>
+              </div>
+              <div class="form-col">
+                <button class="btn btn-primary" onclick="loadPlantsForEntry()" style="margin-top:24px;">
+                  <i class="fas fa-list"></i> Load Plants
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div id="entryFormContainer" style="display:none;">
+            <div class="table-responsive">
+              <table class="data-table entry-table">
+                <thead>
+                  <tr>
+                    <th>Sr</th>
+                    <th>Plant Name</th>
+                    <th>Site</th>
+                    <th>Contact</th>
+                    <th>Capacity</th>
+                    <th style="background:#2e7d32;">Prev Day</th>
+                    <th style="background:#1565c0;">Today</th>
+                    <th>This Month</th>
+                    <th>Up to Date</th>
+                    <th>Project Req.</th>
+                    <th>Balance</th>
+                    <th>Reason</th>
+                  </tr>
+                </thead>
+                <tbody id="entryTableBody"></tbody>
+              </table>
+            </div>
+            
+            <div class="entry-actions">
+              <button class="btn btn-success btn-lg" onclick="saveAllEntries()">
+                <i class="fas fa-save"></i> Save All Entries
+              </button>
+              <button class="btn btn-secondary" onclick="clearEntryForm()">
+                <i class="fas fa-eraser"></i> Clear All
+              </button>
+            </div>
+          </div>
+          
+          <div id="entryLoading" style="display:none; text-align:center; padding:40px;">
+            <div class="spinner-lg"></div>
+            <p style="margin-top:15px; color:#666;">Loading plants data...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- REPORTS SECTION -->
+    <div class="section" id="section-reports">
+      <div class="panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-file-pdf"></i> Generate & Download Reports</h3>
+        </div>
+        <div class="panel-body">
+          <div class="form-row">
+            <div class="form-col">
+              <label>Report Date</label>
+              <input type="date" id="reportDate">
+            </div>
+            <div class="form-col">
+              <label>Site Filter</label>
+              <select id="reportSite">
+                <option value="All">All Sites</option>
+              </select>
+            </div>
+            <div class="form-col">
+              <button class="btn btn-danger btn-lg" onclick="generatePDFReport()" style="margin-top:24px;">
+                <i class="fas fa-file-pdf"></i> Generate PDF
+              </button>
+            </div>
+          </div>
+          
+          <div id="pdfLoading" style="display:none; text-align:center; padding:40px;">
+            <div class="spinner-lg"></div>
+            <p style="margin-top:15px; color:#666;">Generating PDF report...</p>
+          </div>
+          
+          <div id="pdfResult" style="display:none; text-align:center; padding:30px;">
+            <div style="font-size:60px; color:#2e7d32; margin-bottom:15px;">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 style="color:#2e7d32;">PDF Generated Successfully!</h3>
+            <p style="color:#666; margin:10px 0;">Report saved to Google Drive.</p>
+            <a id="pdfDownloadLink" href="#" target="_blank" class="btn btn-primary btn-lg">
+              <i class="fas fa-download"></i> Download PDF
+            </a>
+            <a id="pdfViewLink" href="#" target="_blank" class="btn btn-secondary btn-lg" style="margin-left:10px;">
+              <i class="fas fa-eye"></i> View in Drive
+            </a>
+          </div>
+          
+          <div class="panel" style="margin-top:20px;">
+            <div class="panel-header">
+              <h3><i class="fas fa-eye"></i> Report Preview</h3>
+              <button class="btn btn-sm btn-primary" onclick="previewReport()">
+                <i class="fas fa-sync-alt"></i> Load Preview
+              </button>
+            </div>
+            <div class="panel-body" id="reportPreview">
+              <p class="no-data">Click "Load Preview" to see report data</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- HISTORY SECTION -->
+    <div class="section" id="section-history">
+      <div class="panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-history"></i> Entry History</h3>
+        </div>
+        <div class="panel-body">
+          <div class="filter-bar">
+            <div class="filter-group">
+              <label>Select Date</label>
+              <select id="historyDate" onchange="loadHistory()">
+                <option value="">-- Select Date --</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Site</label>
+              <select id="historySite" onchange="loadHistory()">
+                <option value="All">All Sites</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="loadHistory()">
+              <i class="fas fa-search"></i> Search
+            </button>
+          </div>
+          
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Category</th>
+                  <th>Plant Name</th>
+                  <th>Site</th>
+                  <th>Today Prod.</th>
+                  <th>This Month</th>
+                  <th>Up to Date</th>
+                  <th>Balance</th>
+                  <th>Status</th>
+                  <th>Entered By</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody">
+                <tr><td colspan="10" class="no-data">Select a date</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- USER MANAGEMENT SECTION -->
+    <div class="section" id="section-users">
+      <div class="panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-users-cog"></i> User Management</h3>
+          <button class="btn btn-primary btn-sm" onclick="showAddUserModal()">
+            <i class="fas fa-user-plus"></i> Add User
+          </button>
+        </div>
+        <div class="panel-body">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Full Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Site</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                <tr><td colspan="8" class="no-data">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- SITE MANAGEMENT SECTION -->
+    <div class="section" id="section-sites">
+      <div class="panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-map-marker-alt"></i> Site Management</h3>
+          <button class="btn btn-primary btn-sm" onclick="showAddSiteModal()">
+            <i class="fas fa-plus"></i> Add Site
+          </button>
+        </div>
+        <div class="panel-body">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Site Code</th>
+                  <th>Site Name</th>
+                  <th>Location</th>
+                  <th>Site Manager</th>
+                  <th>Contact</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="sitesTableBody">
+                <tr><td colspan="7" class="no-data">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <!-- USER MODAL -->
+  <div class="modal-overlay" id="userModal" style="display:none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="userModalTitle">Add New User</h3>
+        <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="userRowIndex" value="">
+        <div class="form-row">
+          <div class="form-col">
+            <label>Full Name <span class="required">*</span></label>
+            <input type="text" id="userFullName">
+          </div>
+          <div class="form-col">
+            <label>Username <span class="required">*</span></label>
+            <input type="text" id="userUsername">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <label>Password <span class="required">*</span></label>
+            <input type="password" id="userPassword">
+          </div>
+          <div class="form-col">
+            <label>Assign Site <span class="required">*</span></label>
+            <select id="userSiteName">
+              <option value="All">All Sites</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <label>Email</label>
+            <input type="email" id="userEmail">
+          </div>
+          <div class="form-col">
+            <label>Phone</label>
+            <input type="text" id="userPhone">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <label>Role <span class="required">*</span></label>
+            <select id="userRole2">
+              <option value="admin">Admin</option>
+              <option value="operator" selected>Operator</option>
+              <option value="viewer">Viewer</option>
+            </select>
+          </div>
+          <div class="form-col">
+            <label>Status</label>
+            <select id="userStatus">
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('userModal')">Cancel</button>
+        <button class="btn btn-primary" id="userSaveBtn" onclick="saveUser()">
+          <i class="fas fa-save"></i> Save User
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- SITE MODAL -->
+  <div class="modal-overlay" id="siteModal" style="display:none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="siteModalTitle">Add New Site</h3>
+        <button class="modal-close" onclick="closeModal('siteModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-col">
+            <label>Site Code <span class="required">*</span></label>
+            <input type="text" id="siteCode">
+          </div>
+          <div class="form-col">
+            <label>Site Name <span class="required">*</span></label>
+            <input type="text" id="siteName">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Location</label>
+          <input type="text" id="siteLocation">
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <label>Site Manager</label>
+            <input type="text" id="siteManager">
+          </div>
+          <div class="form-col">
+            <label>Contact No</label>
+            <input type="text" id="siteContact">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="siteStatus">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('siteModal')">Cancel</button>
+        <button class="btn btn-primary" id="siteSaveBtn" onclick="saveSite()">
+          <i class="fas fa-save"></i> Save Site
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- CONFIRM MODAL -->
+  <div class="modal-overlay" id="confirmModal" style="display:none;">
+    <div class="modal" style="width:400px;">
+      <div class="modal-header">
+        <h3>Confirm Action</h3>
+        <button class="modal-close" onclick="closeModal('confirmModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmMessage">Are you sure?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('confirmModal')">Cancel</button>
+        <button class="btn btn-danger" id="confirmActionBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <div class="toast-icon" id="toastIcon"><i class="fas fa-check"></i></div>
+    <div class="toast-message" id="toastMessage">Success!</div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
